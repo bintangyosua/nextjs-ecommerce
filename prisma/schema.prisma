@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = "mysql://root@localhost:3306/thegreenyardv3"
+}
+
+model Product {
+  prod_id    Int      @id @default(autoincrement())
+  prod_name  String
+  prod_price Int
+  prod_desc  String   @db.Text
+  prod_image String
+  carts      Cart[]   @relation("CartProduct")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model User {
+  user_email    String   @id @db.VarChar(20)
+  user_name     String   @db.VarChar(20)
+  user_password String   @db.VarChar(20)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  cart          Cart?
+}
+
+model Cart {
+  cart_id      Int           @id @default(autoincrement())
+  user_email   String        @unique
+  user         User          @relation(fields: [user_email], references: [user_email])
+  products     Product[]     @relation("CartProduct")
+  shippingInfo ShippingInfo?
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
+}
+
+model ShippingInfo {
+  shipping_id      Int      @id @default(autoincrement())
+  cart_id          Int      @unique
+  cart             Cart     @relation(fields: [cart_id], references: [cart_id])
+  shipping_address String
+  city             String
+  postalCode       String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
